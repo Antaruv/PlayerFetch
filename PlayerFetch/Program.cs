@@ -15,6 +15,8 @@ namespace PlayerFetch
         {
 			int MAX = 2;
 			var loader = new WebClient();
+			
+
 
 			var playerList = new List<Player>();
 
@@ -40,7 +42,6 @@ namespace PlayerFetch
 				foreach (var player in playerList)
 				{
 					var a = Player.loadPlayer(player.user_id, loader);
-					//a.pp_rank = player.pp_rank;
 
 					if (db.Players.Any(p => p.user_id == a.user_id))
 					{
