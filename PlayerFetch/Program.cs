@@ -16,8 +16,6 @@ namespace PlayerFetch
 			int MAX = 2;
 			var loader = new WebClient();
 			
-
-
 			var playerList = new List<Player>();
 
 			for (int pageNumber = 1; pageNumber <= MAX && pageNumber <= 200; pageNumber++)

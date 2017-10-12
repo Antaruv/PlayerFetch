@@ -9,6 +9,7 @@ namespace PlayerFetch
 {
     class Page
     {
+		//TODO: this is not very DRY
 		public static List<Player> loadCountryPage(string url, WebClient loader)
 		{
 			List<Player> playerList = new List<Player>();
@@ -36,6 +37,22 @@ namespace PlayerFetch
 
 		public static List<Player> loadCountryPage(string code, int page, WebClient loader) => 
 			loadCountryPage("http://osu.ppy.sh/p/pp/?c=" + code + "&m=0&s=3&o=1&f=&page=" + page, loader);
+
+		public static List<Player> loadAllCountryPages(string code,WebClient loader)
+		{
+			List<Player> playerList = new List<Player>();
+			
+			for(int pageNumber = 1; pageNumber<=4; pageNumber++) //pageNumber <= 4 is for testing purposes, should be 200.
+			{
+				var addition = loadCountryPage(code, pageNumber, loader);
+				playerList.AddRange(addition);
+
+				//Console.CursorLeft = 0;
+				Console.WriteLine("Loaded page " + pageNumber + " for " + code);
+			}
+
+			return playerList;
+		}
 
 
 		public static List<Player> loadGlobalPage(string url, WebClient loader)
@@ -67,6 +84,25 @@ namespace PlayerFetch
 		public static List<Player> loadGlobalPage(int pageNumber, WebClient loader) =>
 			loadCountryPage("http://osu.ppy.sh/p/pp/?m=0&s=3&o=1&f=&page=" + pageNumber, loader);
 
+		public static List<Player> loadGlobalPages(int nPages, WebClient loader)
+		{
+			List<Player> playerList = new List<Player>();
+
+			for(int pageNumber = 1; pageNumber<=nPages; pageNumber++)
+			{
+				var addition = loadGlobalPage(pageNumber, loader);
+				playerList.AddRange(addition);
+				Console.CursorLeft = 0;
+				Console.Write(pageNumber);
+			}
+
+			return playerList;
+		}
+
+		public static List<Player> loadGlobalPages(WebClient loader) =>
+			loadGlobalPages(200, loader);
+
+
 
 		public static List<string> loadCountryCodesPage(string url, WebClient loader)
 		{
@@ -82,23 +118,43 @@ namespace PlayerFetch
 
 		public static List<string> loadCountryCodesPage(int page, WebClient loader) =>
 			loadCountryCodesPage("https://osu.ppy.sh/p/countryranking?p=countryranking&s=3&o=1&page=" + page, loader);
-
-
-		public static List<string> loadCountryCodes(WebClient loader)
+		
+		public static List<string> loadAllCountryCodes(WebClient loader)
 		{
 			List<string> codes = new List<string>();
 
-			int i = 1;
+			int pageNumber = 1;
 			bool running = true;
 			while(running)
 			{
-				var addition = loadCountryCodesPage(i, loader);
+				var addition = loadCountryCodesPage(pageNumber, loader);
 				running = addition.Any();
 				codes.AddRange(addition);
-				i++;
+				pageNumber++;
 			}
 
 			return codes;
+		}
+
+		public static List<Player> loadMaxPlayers(WebClient loader)
+		{
+			List<Player> playerList = new List<Player>();
+
+			var codes = loadAllCountryCodes(loader);
+
+			int i = 0;
+			int total = codes.Count();
+			foreach(string code in codes)
+			{
+				//Console.SetCursorPosition(0, 0);
+				Console.WriteLine("Loading " + code);
+				playerList.AddRange(loadAllCountryPages(code, loader));
+				//Console.SetCursorPosition(0, 0);
+				Console.WriteLine("Loaded " + code);
+				Console.WriteLine(i++ + "/" + total);
+			}
+
+			return playerList;
 		}
 	}
 }
