@@ -2,6 +2,7 @@
 using AngleSharp.Parser.Html;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -178,7 +179,7 @@ namespace PlayerFetch
 			}
 		}
 
-		public void fetchStoreMaxPlayers(WebClient loader)
+		public static void fetchStoreMaxPlayers(WebClient loader)
 		{
 			var codeList = loadAllCountryCodes(loader);
 

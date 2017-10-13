@@ -4,6 +4,7 @@ using System.Net;
 using AngleSharp.Parser.Html;
 using System.Linq;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -15,8 +16,9 @@ namespace PlayerFetch
         {
 			WebClient loader = new WebClient();
 
-			DbHandler.loadAndStorePage(1);
+	        
 
+			Console.Write("Done! ");
 			Console.ReadLine();
 		}
 
