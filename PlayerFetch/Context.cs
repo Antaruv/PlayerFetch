@@ -11,7 +11,14 @@ namespace PlayerFetch
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
-			optionsBuilder.UseSqlite("Data Source=players.db");
+			optionsBuilder.UseMySql("server=localhost;userid=root;pwd=;port=3306;database=osu_players;");
 		}
+
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<Player>()
+				.HasIndex(p => p.total_score);
+		}
+
 	}
 }
