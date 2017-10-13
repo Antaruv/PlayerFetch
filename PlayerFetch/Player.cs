@@ -16,7 +16,7 @@ public class Player
 	[Key]
 	public uint user_id { get; set; }
 
-	//[Required]
+	[Required]
 	public string username { get; set; }
 
 	public uint count300 { get; set; }
