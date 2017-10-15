@@ -17,7 +17,7 @@ namespace PlayerFetch
 	{
 		[Key]
 		public uint user_id { get; set; }
-
+		
 		[Required]
 		public string username { get; set; }
 
@@ -49,16 +49,6 @@ namespace PlayerFetch
 			this.pp_rank = rank;
 			this.user_id = id;
 			this.username = name;
-		}
-
-		public static Player loadPlayer(uint id, WebClient loader)
-		{
-			string key = Environment.GetEnvironmentVariable("APIKEY");
-			string apiURL = "http://osu.ppy.sh/api/get_user?k=" + key + "&mode=0&type=id&u=";
-
-			string json = loader.DownloadString(apiURL + id);
-			var thisplayer = JsonConvert.DeserializeObject<Player[]>(json);
-			return thisplayer.First();
 		}
 	}
 

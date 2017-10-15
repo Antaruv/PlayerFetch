@@ -15,8 +15,9 @@ namespace PlayerFetch
         static void Main(string[] args)
         {
 			WebClient loader = new WebClient();
+			APIHandler apiHandler = new APIHandler(Environment.GetEnvironmentVariable("APIKEY"));
 
-	        
+	        //stuff
 
 			Console.Write("Done! ");
 			Console.ReadLine();

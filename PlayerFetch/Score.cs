@@ -29,22 +29,8 @@ namespace PlayerFetch
 		public float pp { get; set; }
 
 		public uint user_id { get; set; }
-		public Player player { get; set; }
 
 		private static WebClient loader = new WebClient();
 
-		public static List<Score> loadScores(int user_id, int number)
-		{
-			string key = Environment.GetEnvironmentVariable("APIKEY");
-			string apiURL = "https://osu.ppy.sh/api/get_user_best?m=0&limit=" + number + "&k=" + key + "&u=" + user_id;
-
-			string json = loader.DownloadString(apiURL);
-			var scores = JsonConvert.DeserializeObject<Score[]>(json);
-
-			return scores.ToList();
-		}
-
-		public static List<Score> loadScores(int user_id) =>
-			loadScores(user_id, 100);
 	}
 }

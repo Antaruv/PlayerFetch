@@ -54,7 +54,8 @@ namespace PlayerFetch
 
 	    public static int loadAndStoreScores(int user_id)
 	    {
-		    var scoreList = Score.loadScores(user_id);
+			var apihandler = new APIHandler(Environment.GetEnvironmentVariable("APIKEY"));
+		    var scoreList = apihandler.loadScores(user_id);
 
 		    db.SaveChanges();
 
