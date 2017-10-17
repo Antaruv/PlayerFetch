@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -27,6 +26,8 @@ namespace PlayerFetch
 		public string date { get; set; }
 		public string rank { get; set; }
 		public float pp { get; set; }
+		public Player player { get; set; }
+		public Beatmap beatmap { get; set; }
 
 		public uint user_id { get; set; }
 

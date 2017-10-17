@@ -9,6 +9,7 @@ namespace PlayerFetch
 	{
 		public DbSet<Player> Players { get; set; }
 		public DbSet<Score> Scores { get; set; }
+		public DbSet<Beatmap> Beatmaps { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
@@ -27,6 +28,10 @@ namespace PlayerFetch
 				builder.HasOne(p => p.player)
 				.WithMany(s => s.Scores)
 				.HasForeignKey(s => s.user_id);
+
+				builder.HasOne(b => b.beatmap)
+				.WithMany(s => s.Scores)
+				.HasForeignKey(s => s.beatmap_id);
 
 				builder.HasKey(s => new {s.beatmap_id, s.user_id, s.enabled_mods});
 			});

@@ -8,14 +8,20 @@ namespace PlayerFetch
 {
     class DbHandler
     {
-		private static WebClient loader = new WebClient();
-		private static PlayerContext db = new PlayerContext();
+		private PlayerContext db = new PlayerContext();
+	    private APIHandler apiHandler;
 
-		public static int storeFetchPlayers(List<Player> playerList)
+	    public DbHandler(APIHandler handler)
+	    {
+		    this.apiHandler = handler;
+	    }
+
+
+		public int storeFetchPlayers(List<Player> playerList)
 		{
 			foreach(var player in playerList)
 			{
-				var current_player = Player.loadPlayer(player.user_id, loader);
+				var current_player = apiHandler.loadPlayer(player.user_id);
 
 				if(db.Players.Any(p => p.user_id==current_player.user_id))
 				{
@@ -32,7 +38,7 @@ namespace PlayerFetch
 			return db.SaveChanges();
 		}
 		
-		public static int storePlayerList(List<Player> playerList)
+		public int storePlayerList(List<Player> playerList)
 		{
 			foreach(var player in playerList)
 			{
@@ -49,10 +55,10 @@ namespace PlayerFetch
 			return db.SaveChanges();
 		}
 
-		public static int loadAndStorePage(int pageNumber) =>
+		public int loadAndStorePage(int pageNumber) =>
 			storeFetchPlayers(Page.loadPage(pageNumber));
 
-	    public static int loadAndStoreScores(int user_id)
+	    public int loadAndStoreScores(int user_id)
 	    {
 			var apihandler = new APIHandler(Environment.GetEnvironmentVariable("APIKEY"));
 		    var scoreList = apihandler.loadScores(user_id);
@@ -80,10 +86,10 @@ namespace PlayerFetch
 		    return db.SaveChanges();
 	    }
 
-	    public static int loadAndStoreScores(Player player) =>
+	    public int loadAndStoreScores(Player player) =>
 		    loadAndStoreScores((int) player.user_id);
 
-	    public static int loadAllPlayerScores()
+	    public int loadAllPlayerScores()
 	    {
 		    var total = 0;
 		    foreach (var player in db.Players)
@@ -94,6 +100,85 @@ namespace PlayerFetch
 		    }
 
 		    return total;
+	    }
+
+	    public bool storeDummyBeatmap(uint beatmap_id)
+	    {
+		    if (!db.Beatmaps.Any(b => b.beatmap_id == beatmap_id))
+		    {
+			    var beatmap = new Beatmap();
+			    beatmap.beatmap_id = beatmap_id;
+
+			    db.Add(beatmap);
+			    db.SaveChanges();
+			    return true;
+		    }
+		    else
+		    {
+			    return false;
+		    }
+
+	    }
+
+	    public int storeBeatmap(Beatmap beatmap)
+	    {
+			if (!db.Beatmaps.Any(b => b.beatmap_id == beatmap.beatmap_id))
+			{
+				db.Add(beatmap);
+			}
+			else
+			{
+				db.Update(beatmap);
+			}
+
+		    return db.SaveChanges();
+	    }
+
+	    public int storeBeatmaps(List<Beatmap> beatmaps)
+	    {
+		    foreach(var beatmap in beatmaps)
+		    {
+			    if (!db.Beatmaps.Any(b => b.beatmap_id == beatmap.beatmap_id))
+			    {
+				    db.Add(beatmap);
+			    }
+			    else
+			    {
+				    db.Update(beatmap);
+			    }
+		    }
+		    return db.SaveChanges();
+	    }
+
+	    public int storeBeatmapsFromScores(List<Score> scores)
+	    {
+		    var beatmap_ids = scores.Select(s => s.beatmap_id)
+									.Where(b => !db.Beatmaps.Any(bm => bm.beatmap_id == b && bm.total_length == 0))
+									.Distinct();
+
+		    var beatmaps = new List<Beatmap>();
+		    foreach (var beatmap_id in beatmap_ids)
+		    {
+			    try
+			    {
+				    beatmaps.Add(apiHandler.loadBeatmap(beatmap_id));
+			    }
+			    catch
+			    {
+				    //TODO some kind of error logging?
+			    }
+
+		    }
+
+			Console.WriteLine("Loaded beatmaps for " + beatmap_ids.Count() + "/" + scores.Count() + " scores.");
+
+		    return storeBeatmaps(beatmaps);
+	    }
+
+	    public int storeAllBeatmapsFromScores()
+	    {
+		    var scores = db.Scores.ToList();
+		    return storeBeatmapsFromScores(scores);
 	    }
     }
 }

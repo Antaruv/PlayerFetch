@@ -16,8 +16,9 @@ namespace PlayerFetch
         {
 			WebClient loader = new WebClient();
 			APIHandler apiHandler = new APIHandler(Environment.GetEnvironmentVariable("APIKEY"));
+			DbHandler dbHandler = new DbHandler(apiHandler);
 
-	        //stuff
+	        dbHandler.storeAllBeatmapsFromScores();
 
 			Console.Write("Done! ");
 			Console.ReadLine();
