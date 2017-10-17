@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
+using AngleSharp;
 using Newtonsoft.Json;
 
 namespace PlayerFetch
@@ -16,14 +17,29 @@ namespace PlayerFetch
 	    private readonly string key;
 	    private readonly WebClient loader= new WebClient();
 	    public List<DateTime> requests = new List<DateTime>();
-	    public int i = 0;
-	    public double t = 0;
-	    public DateTime start;
 
 	    public APIHandler(string key)
 	    {
 		    this.key = key;
-		    this.start = DateTime.Now;
+	    }
+
+	    private string tryDownload(string url, int attempts)
+	    {
+		    if (attempts > 0)
+		    {
+			    try
+			    {
+				    return loader.DownloadString(url);
+			    }
+			    catch
+			    {
+				    return tryDownload(url, --attempts);
+			    }
+		    }
+		    else
+		    {
+			    throw new Exception();
+		    }
 	    }
 
 	    public void startRequest()
@@ -49,21 +65,33 @@ namespace PlayerFetch
 	    public Player loadPlayer(uint id)
 	    {
 		    startRequest();
-		    string apiURL = "http://osu.ppy.sh/api/get_user?k=" + key + "&mode=0&type=id&u=";
+		    string apiURL = "http://osu.ppy.sh/api/get_user?k=" + key + "&mode=0&type=id&u=" + id;
 
-		    string json = loader.DownloadString(apiURL + id);
+		    string json = tryDownload(apiURL, 3);
 		    var thisplayer = JsonConvert.DeserializeObject<Player[]>(json);
 		    return thisplayer.First();
 	    }
 
 	    public List<Score> loadScores(int user_id, int number)
 	    {
+			startRequest();
 		    string apiURL = "https://osu.ppy.sh/api/get_user_best?m=0&limit=" + number + "&k=" + key + "&u=" + user_id;
 
-		    string json = loader.DownloadString(apiURL);
+		    string json = tryDownload(apiURL, 3);
 		    var scores = JsonConvert.DeserializeObject<Score[]>(json);
 
 		    return scores.ToList();
+	    }
+
+	    public Beatmap loadBeatmap(uint beatmap_id)
+	    {
+			startRequest();
+		    string apiURL = "https://osu.ppy.sh/api/get_beatmaps?m=0&b=" + beatmap_id + "&k=" + key;
+
+		    string json = tryDownload(apiURL,3);
+		    var beatmap = JsonConvert.DeserializeObject<Beatmap[]>(json);
+
+		    return beatmap.First();
 	    }
 
 	    public List<Score> loadScores(int user_id) =>
